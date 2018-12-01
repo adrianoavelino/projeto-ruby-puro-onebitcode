@@ -1,5 +1,7 @@
 require 'tty-prompt'
 require_relative 'translator'
+require_relative 'save_translation'
+
 @prompt = TTY::Prompt.new
 @option = 1
 
@@ -43,6 +45,8 @@ def show_translator
     translator.text_translated = translator.translator(translator.text)
     puts 'Translated text: ' + translator.text_translated.first
     
+    SaveTranslation.new(translator).save
+
     puts '--------------------------------------------------------'
     choice = @prompt.yes?('Would you like translating again?') do |q|
         q.default 'y'
