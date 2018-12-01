@@ -6,7 +6,7 @@ class Translator
 
     # end
 
-    attr_accessor :text, :text_translated, :language_original, :language_translated
+    attr_accessor :text, :text_translated, :language_original, :language_translated, :translation_direction
 
     def get_url_languages
         'https://translate.yandex.net/api/v1.5/tr.json/getLangs?ui=en&key=' + get_token
@@ -41,18 +41,18 @@ class Translator
         destinos
     end
 
-    def get_url_translator(abbreviation_country_dash_abbreviation_another_country)
-        'https://translate.yandex.net/api/v1.5/tr.json/translate?lang='+ abbreviation_country_dash_abbreviation_another_country +'&key=' + get_token
+    def get_url_translator
+        "https://translate.yandex.net/api/v1.5/tr.json/translate?lang=#{translation_direction}&key=#{get_token}"
     end
 
     def get_token
         token = File.open('./.token', &:readline)
         # tweets = IO.readlines('./.token')
-
     end
 
     def translator(text)
-        text_translated = RestClient.post get_url_translator, {text: typed_text}
+        url = get_url_translator
+        json = RestClient.post url, {text: text}
+        JSON.parse(json)['text']
     end
 end
-

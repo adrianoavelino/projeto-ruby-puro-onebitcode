@@ -1,5 +1,5 @@
 require 'tty-prompt'
-
+require_relative 'translator'
 @prompt = TTY::Prompt.new
 @option = 1
 
@@ -20,7 +20,36 @@ end
 
 def show_translator
     clear_terminal
-    puts 'translator'
+    puts '---------------------- Translator ----------------------'
+    translator = Translator.new
+    translator.language_original = @prompt.select("Select text language:", filter: true) do |menu|
+        translator.get_languages_origem_text.each do |key, val|
+            menu.choice "#{val}", key
+        end    
+    end
+    
+    translator.language_translated = @prompt.select("Select translated text language:", filter: true) do |menu|
+        translator.get_languages_text_translated(translator.language_original).each do |key, val|
+            menu.choice "#{val}", key
+        end    
+    end
+    
+    language_origem_destiny = translator.language_original + '-' + translator.language_translated
+    translator.translation_direction = language_origem_destiny
+    
+    print 'Put your text: '
+    translator.text = gets.chomp
+    
+    translator.text_translated = translator.translator(translator.text)
+    puts 'Translated text: ' + translator.text_translated.first
+    
+    puts '--------------------------------------------------------'
+    choice = @prompt.yes?('Would you like translating again?') do |q|
+        q.default 'y'
+        q.positive 'y'
+        q.negative 'n'
+    end
+    @option = (choice and choice != nil)? 2: 1
 end
 
 def show_setup
@@ -37,7 +66,7 @@ while @option != 0
             show_home
         when 2
             show_translator
-            @option = 1
+            # @option = 1
         when 3
             show_setup
             @option = 1
@@ -46,5 +75,4 @@ while @option != 0
             @option = 1
     end
 end
-
-puts 'Exit system'
+clear_terminal
