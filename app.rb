@@ -15,7 +15,7 @@ def show_home
     puts '----------- Text Translator -----------'
     @option = @prompt.select("Select a option: ") do |menu|
         menu.choice 'Translator', 2
-        menu.choice 'Setup', 3
+        menu.choice 'Setup token', 3
         menu.choice 'Exit', 0
     end
     puts @option
@@ -57,18 +57,17 @@ def show_translator
     @option = (choice and choice != nil)? 2: 1
 end
 
-def show_setup
+def show_setup_token
     clear_terminal
-    puts '------------------- Setup -------------------'
+    puts '------------------- Setup token -------------------'
     puts 'Get your token in https://translate.yandex.com/developers/keys and puts below:'
-    print 'Token: '
-    token = gets.chomp
+    token = @prompt.mask("Token: ")
     if Token.new().validate_token(token)
         Token.new().create_token(token)
         @option = 1
     else
         puts 'Invalid Token!'
-        choice = @prompt.yes?('Would you like inserting another token') do |q|
+        choice = @prompt.yes?('Would you like trying again?') do |q|
             q.default 'y'
             q.positive 'y'
             q.negative 'n'
@@ -95,7 +94,7 @@ while @option != 0
                 show_translator
             end
         when 3
-            show_setup
+            show_setup_token
         else
             puts 'invalid option '
             @option = 1
