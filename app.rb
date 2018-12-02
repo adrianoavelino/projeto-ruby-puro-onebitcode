@@ -1,6 +1,7 @@
 require 'tty-prompt'
 require_relative 'translator'
 require_relative 'save_translation'
+require_relative 'token'
 
 @prompt = TTY::Prompt.new
 @option = 1
@@ -61,7 +62,20 @@ def show_setup
     puts '------------------- Setup -------------------'
     puts 'Get your token in https://translate.yandex.com/developers/keys and puts below:'
     print 'Token: '
-    token = gets.chomp.to_i
+    token = gets.chomp
+    if Token.new().validate_token(token)
+        Token.new().create_token(token)
+        @option = 1
+    else
+        puts 'Invalid Token!'
+        choice = @prompt.yes?('Would you like inserting another token') do |q|
+            q.default 'y'
+            q.positive 'y'
+            q.negative 'n'
+        end
+        @option = (choice)? 3: 1
+    end
+
 end
 
 while @option != 0
@@ -69,11 +83,19 @@ while @option != 0
         when 1
             show_home
         when 2
-            show_translator
-            # @option = 1
+            clear_terminal
+            if (!File.exist?('./.token')) 
+                choice = @prompt.yes?('You didn\'t create the token! Would you like inserting one?') do |q|
+                    q.default 'y'
+                    q.positive 'y'
+                    q.negative 'n'
+                end                
+                @option = (choice)? 3: 1
+            else
+                show_translator
+            end
         when 3
             show_setup
-            @option = 1
         else
             puts 'invalid option '
             @option = 1
